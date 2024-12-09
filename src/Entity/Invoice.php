@@ -10,10 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\InvoiceRepository;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use App\Controller\InvoiceIncrementationController;
-use ApiPlatform\Metadata\Operation;
-use ApiPlatform\Metadata\ApiProperty;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -23,11 +22,14 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(),
         new Put(),
         new Delete(),
+        new Post(),
         new Post(
             name: 'invoice_increment',
             uriTemplate: '/invoices/{id}/increment',
             controller: InvoiceIncrementationController::class,
-        )
+        ),
+        new GetCollection(normalizationContext: ['groups' => ['invoices_read']]),
+        new GetCollection(uriTemplate:'/customers/{id}/invoices'),
     ],
     normalizationContext: ['groups' => ['invoices_read']],
     denormalizationContext: ['disable_type_enforcement' => true],

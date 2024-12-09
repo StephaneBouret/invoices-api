@@ -9,14 +9,16 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Controller\CheckEmailController;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use ApiPlatform\Metadata\Post;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -25,6 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(),
         new Put(),
+        new Post(),
         new Delete(),
         new Get(
             name: 'get_email',
@@ -32,7 +35,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             controller: CheckEmailController::class,
             read: false,
             paginationEnabled: false,
-        )
+        ),
+        new GetCollection(normalizationContext: ['groups' => ['users_read']]),
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['email' => 'exact'])]

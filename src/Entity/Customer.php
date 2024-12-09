@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Put(denormalizationContext: ['groups' => ['customers_write']]),
         new Delete(),
         new GetCollection(normalizationContext: ['groups' => ['customers_read']]),
+        new GetCollection(uriTemplate:'/customers/{id}/invoices'),
     ],
     normalizationContext: ['groups' => ['customers_read']],
     denormalizationContext: ['groups' => ['customers_write']]
@@ -73,7 +74,6 @@ class Customer
      */
     #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'customer')]
     #[Groups(["customers_read"])]
-    #[ApiResource(uriTemplate: '/customers/{id}/invoices', operations: [new GetCollection()])]
     private Collection $invoices;
 
     #[ORM\ManyToOne(inversedBy: 'customers')]

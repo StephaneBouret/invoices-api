@@ -2,23 +2,52 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use App\Controller\CheckEmailController;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ApiResource(
+    normalizationContext: ['groups' => ['users_read']],
+    operations: [
+        new Get(),
+        new Put(),
+        new Delete(),
+        new Get(
+            name: 'get_email',
+            uriTemplate: '/forgetpassword/{email}/get_email',
+            controller: CheckEmailController::class,
+            read: false,
+            paginationEnabled: false,
+        )
+    ]
+)]
+#[ApiFilter(SearchFilter::class, properties: ['email' => 'exact'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['customers_read', 'invoices_read', 'invoices_subresource', 'users_read', 'forgets_read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: "L'email doit être renseigné !")]
+    #[Assert\Email(message: "L'adresse email doit avoir un format valide !")]
+    #[Groups(['customers_read', 'invoices_read', 'invoices_subresource', 'users_read', 'forgets_read'])]
     private ?string $email = null;
 
     /**
@@ -31,12 +60,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Le mot de passe est obligatoire")]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le prénom est obligatoire")]
+    #[Assert\Length(min: 3, max: 255, minMessage: "Le prénom doit faire entre 3 et 255 caractères", maxMessage: "Le prénom doit faire entre 3 et 255 caractères")]
+    #[Groups(['customers_read', 'invoices_read', 'invoices_subresource', 'users_read', 'forgets_read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom de famille est obligatoire")]
+    #[Assert\Length(min: 3, max: 255, minMessage: "Le nom de famille doit faire entre 3 et 255 caractères", maxMessage: "Le nom de famille doit faire entre 3 et 255 caractères")]
+    #[Groups(['customers_read', 'invoices_read', 'invoices_subresource', 'users_read', 'forgets_read'])]
     private ?string $lastName = null;
 
     /**

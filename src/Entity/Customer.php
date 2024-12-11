@@ -20,16 +20,23 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 #[ApiResource(
+    normalizationContext: ['groups' => ['customers_read']],
+    denormalizationContext: ['groups' => ['customers_write']],
     operations: [
         new Get(normalizationContext: ['groups' => ['customers_read']]),
-        new Post(normalizationContext: ['groups' => ['customers_read']], denormalizationContext: ['groups' => ['customers_write']]),
-        new Put(denormalizationContext: ['groups' => ['customers_write']]),
+        new Post(),
+        new Put(),
         new Delete(),
-        new GetCollection(normalizationContext: ['groups' => ['customers_read']]),
-        new GetCollection(uriTemplate:'/customers/{id}/invoices'),
+        new GetCollection(),
     ],
-    normalizationContext: ['groups' => ['customers_read']],
-    denormalizationContext: ['groups' => ['customers_write']]
+    paginationItemsPerPage: 10,
+)]
+#[ApiResource(
+    uriTemplate: '/customers/{id}/invoices',
+    operations: [new GetCollection()],
+    normalizationContext: [
+        'groups' => ['customers_read'],
+    ],
 )]
 #[ApiFilter(SearchFilter::class, properties: ['firstName' => 'partial', 'lastName' => 'partial', 'email' => 'partial'])]
 #[ApiFilter(OrderFilter::class, properties: ['lastName', 'firstName'], arguments: ['orderParameterName' => 'order'])]
@@ -38,7 +45,7 @@ class Customer
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["customers_read", "invoices_read"])]
+    #[Groups(["customers_read", "customers_write", "invoices_read", "invoices_write"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -49,7 +56,7 @@ class Customer
         max: 255,
         maxMessage: 'Le prénom doit faire entre 3 et 255 caractères'
     )]
-    #[Groups(["customers_read", "invoices_read"])]
+    #[Groups(["customers_read", "customers_write", "invoices_read", "invoices_write"])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
@@ -60,13 +67,13 @@ class Customer
         max: 255,
         maxMessage: 'Le nom de famille doit faire entre 3 et 255 caractères'
     )]
-    #[Groups(["customers_read", "invoices_read"])]
+    #[Groups(["customers_read", "customers_write", "invoices_read", "invoices_write"])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'L\'adresse email du customer est obligatoire')]
     #[Assert\Email(message: 'Le format de l\'adresse email doit être valide')]
-    #[Groups(["customers_read", "invoices_read"])]
+    #[Groups(["customers_read", "customers_write", "invoices_read", "invoices_write"])]
     private ?string $email = null;
 
     /**
@@ -77,12 +84,12 @@ class Customer
     private Collection $invoices;
 
     #[ORM\ManyToOne(inversedBy: 'customers')]
-    #[Groups(["customers_read"])]
+    // #[Assert\NotBlank(message: 'L\'utilisateur est obligatoire')]
+    #[Groups(["customers_read", "customers_write"])]
     private ?User $user = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: 'L\'utilisateur est obligatoire')]
-    #[Groups(["customers_read", "invoices_read"])]
+    #[Groups(["customers_read", "customers_write", "invoices_read", "invoices_write"])]
     private ?string $company = null;
 
     public function __construct()

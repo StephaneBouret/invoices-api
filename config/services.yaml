@@ -24,3 +24,10 @@ services:
     # please note that last definitions always *replace* previous ones
     App\Controller\InvoiceIncrementationController:
         tags: ['controller.service_arguments']
+    App\EventListener\JWTCreatedListener:
+        tags: 
+            - {
+                name: kernel.event_listener,
+                event: lexik_jwt_authentication.on_jwt_created,
+                method: updateJwtData
+            }

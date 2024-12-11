@@ -53,7 +53,7 @@ class Invoice
     private ?float $amount = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank(message: "La date d'envoi doit être renseignée")]
+    // #[Assert\NotBlank(message: "La date d'envoi doit être renseignée")]
     #[Assert\Type(type: \DateTimeInterface::class, message: "La date doit être au format YYYY-MM-DD")]
     #[Groups(['invoices_read', 'customers_read', 'invoices_subresource'])]
     private ?\DateTimeImmutable $sentAt = null;
@@ -71,7 +71,7 @@ class Invoice
     private ?Customer $customer = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank(message: "Il faut absolument un chrono pour la facture")]
+    // #[Assert\NotBlank(message: "Il faut absolument un chrono pour la facture")]
     #[Assert\Type(type: 'integer', message: "Le chrono doit être un nombre")]
     #[Groups(['invoices_read', 'customers_read', 'invoices_subresource'])]
     private ?int $chrono = null;

@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}API Platform{% endblock %}
+
+{% block stylesheets %}
+{# 'app' must match the first argument to addEntry() in webpack.config.js #}
+<link rel="stylesheet" href="https://bootswatch.com/5/litera/bootstrap.min.css">
+{{ encore_entry_link_tags('app') }}
+{% endblock %}
+
+{% block body %}
+<div id="app"></div>
+{% endblock %}
+
+{% block javascripts %}
+{{ encore_entry_script_tags('app') }}
+{% endblock %}

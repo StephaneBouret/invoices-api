@@ -23,15 +23,16 @@ class CurrentUserExtension implements QueryCollectionExtensionInterface, QueryIt
 
         // 2. Si on demande des invoices ou des customers alors, agir sur la requête pour qu'elle tienne compte de l'utilisateur connecté
         if (
-            ($resourceClass === Customer::class || $resourceClass === Invoice::class) 
-            && !$this->security->isGranted('ROLE_ADMIN') 
-            && $user instanceof User) {
+            ($resourceClass === Customer::class || $resourceClass === Invoice::class)
+            && !$this->security->isGranted('ROLE_ADMIN')
+            && $user instanceof User
+        ) {
             $rootAlias = $queryBuilder->getRootAliases()[0];
             if ($resourceClass === Customer::class) {
                 $queryBuilder->andWhere("$rootAlias.user = :user");
             } elseif ($resourceClass === Invoice::class) {
                 $queryBuilder->join("$rootAlias.customer", "c")
-                            ->andWhere("c.user = :user");
+                    ->andWhere("c.user = :user");
             }
 
             $queryBuilder->setParameter("user", $user);
@@ -43,7 +44,7 @@ class CurrentUserExtension implements QueryCollectionExtensionInterface, QueryIt
         $this->addWhere($queryBuilder, $resourceClass);
     }
 
-    public function applyToItem(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, array $identifiers, ?Operation $operation = null, array $context = []): void 
+    public function applyToItem(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, array $identifiers, ?Operation $operation = null, array $context = []): void
     {
         $this->addWhere($queryBuilder, $resourceClass);
     }

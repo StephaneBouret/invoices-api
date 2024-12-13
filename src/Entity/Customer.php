@@ -29,7 +29,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(),
         new GetCollection(),
     ],
-    paginationItemsPerPage: 10,
+    // paginationItemsPerPage: 10,
+    paginationEnabled: false
 )]
 #[ApiResource(
     uriTemplate: '/customers/{id}/invoices',

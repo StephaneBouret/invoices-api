@@ -1,5 +1,8 @@
 import moment from "moment";
 import React, { useEffect, useState } from 'react';
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import TableLoader from "../components/loaders/TableLoader";
 import Pagination from '../components/Pagination';
 import InvoicesAPI from '../services/invoicesAPI.js';
 
@@ -19,6 +22,7 @@ const InvoicesPage = () => {
     const [invoices, setInvoices] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [search, setSearch] = useState("");
+    const [loading, setLoading] = useState(true);
     const itemsPerPage = 10;
 
     // Récupération des invoices auprès de l'API
@@ -26,8 +30,10 @@ const InvoicesPage = () => {
         try {
             const data = await InvoicesAPI.findAll();
             setInvoices(data); 
+            setLoading(false);
         } catch (error) {
-            console.log(error.response);
+            // console.log(error.response);
+            toast.error("Erreur lors du chargement des factures !");
         }
     }
 
@@ -52,7 +58,9 @@ const InvoicesPage = () => {
         setInvoices(invoices.filter(invoice => invoice.id !== id));
         try {
             await InvoicesAPI.delete(id);
+            toast.success("La facture a bien été supprimée");
         } catch (error) {
+            toast.error("Une erreur est survenue");
             setInvoices(originalInvoices);
         }
     }
@@ -80,6 +88,9 @@ const InvoicesPage = () => {
         <>
         <div className="d-flex justify-content-between align-items-center">
             <h1>Liste des factures</h1>
+            <Link className="btn btn-primary" to="/invoices/new">
+                Créer une facture
+            </Link>
         </div>
 
         <div className="form-group">
@@ -103,12 +114,13 @@ const InvoicesPage = () => {
                     <th></th>
                 </tr>
             </thead>
+            {!loading && (
             <tbody>
                 {paginatedInvoices.map(invoice => (
                     <tr key={invoice.id}>
                     <td>{invoice.chrono}</td>
                     <td>
-                        {invoice.customer.firstName} {invoice.customer.lastName}
+                        <Link to={"/customers/" + invoice.customer.id}>{invoice.customer.firstName} {invoice.customer.lastName}</Link>
                     </td>
                     <td className="text-center">{formatDate(invoice.sentAt)}</td>
                     <td className="text-center">
@@ -119,8 +131,7 @@ const InvoicesPage = () => {
                     </td>
                     <td className="text-center">{invoice.amount.toLocaleString()} €</td>
                     <td>
-                        <a href="#" className="btn btn-sm btn-primary me-1">Editer</a>
-                        {/* <Link to={"/invoices/" + invoice.id} className="btn btn-sm btn-primary me-1">Editer</Link> */}
+                        <Link to={"/invoices/" + invoice.id} className="btn btn-sm btn-primary me-1">Editer</Link>
                         <button 
                             className="btn btn-sm btn-danger"
                             onClick={() => handleDelete(invoice.id)}
@@ -129,7 +140,10 @@ const InvoicesPage = () => {
                 </tr>
                 ))}
             </tbody>
+            )}
         </table>
+
+        {loading && <TableLoader />}
 
         <Pagination 
             currentPage={currentPage}

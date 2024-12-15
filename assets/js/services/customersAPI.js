@@ -1,17 +1,37 @@
 import axios from "axios";
+import { CUSTOMERS_API } from "../config";
 
 function findAll() {
     return axios
-        .get("https://127.0.0.1:8000/api/customers")
+        .get(CUSTOMERS_API)
         .then(response => response.data['member']);
+}
+
+async function find(id) {
+    return axios
+        .get(CUSTOMERS_API + "/" + id)
+        .then(response => response.data);
 }
 
 function deleteCustomer(id) {
     return axios
-        .delete("https://127.0.0.1:8000/api/customers/" + id)
+        .delete(CUSTOMERS_API + "/" + id)
+}
+
+function update(id, customer) {
+    return axios
+        .put(CUSTOMERS_API + "/" + id, customer);
+}
+
+function create(customer) {
+    return axios
+        .post(CUSTOMERS_API, customer);
 }
 
 export default {
     findAll,
+    find,
+    update,
+    create,
     delete: deleteCustomer
 };
